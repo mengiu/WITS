@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="process_PWMO" name="Workflow Processamento Wamat Object" isExecutable="true">
+    <startEvent id="starteventPWMO" name="StartPWMO">
+      <extensionElements>
+        <activiti:formProperty id="startprocessingPWMO" name="Start Page PWMO" type="startprocessingpwmogrid"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <userTask id="itemizingPWMO" name="Aggiungi/Modifica Item Wamat Object ">
+      <extensionElements>
+        <activiti:formProperty id="itemizingWamat" name="Itemizing Wamat" type="itemizinggrid"></activiti:formProperty>
+        <activiti:taskListener event="create" expression="#{itemizingUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <serviceTask id="createGenerationProcessInstance" name="Crea Istanza di processo di generazione" activiti:expression="#{createGenerationProcessInstanceService.execute(execution)}"></serviceTask>
+    <serviceTask id="closeGenerationProcessInstance" name="Chiudi Instanza di processo di generazione " activiti:expression="#{closeGenerationProcessInstanceService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow5" sourceRef="createGenerationProcessInstance" targetRef="itemizingPWMO"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="closeGenerationProcessInstance" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="starteventPWMO" targetRef="createGenerationProcessInstance"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <serviceTask id="deleteInstanceProcess" name="Cancella Istanza di processo" activiti:expression="#{deleteGenerationProcessInstanceService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow15" sourceRef="deleteInstanceProcess" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow18" name="No" sourceRef="exclusivegateway1" targetRef="closeGenerationProcessInstance">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeProcessClosing == 'NO_DELETE_PI'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow19" name="Si" sourceRef="exclusivegateway1" targetRef="deleteInstanceProcess">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeProcessClosing == 'DELETE_PI'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow20" sourceRef="itemizingPWMO" targetRef="exclusivegateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_PWMO">
+    <bpmndi:BPMNPlane bpmnElement="process_PWMO" id="BPMNPlane_process_PWMO">
+      <bpmndi:BPMNShape bpmnElement="starteventPWMO" id="BPMNShape_starteventPWMO">
+        <omgdc:Bounds height="35.0" width="35.0" x="150.0" y="160.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="itemizingPWMO" id="BPMNShape_itemizingPWMO">
+        <omgdc:Bounds height="71.0" width="151.0" x="600.0" y="142.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1120.0" y="313.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createGenerationProcessInstance" id="BPMNShape_createGenerationProcessInstance">
+        <omgdc:Bounds height="87.0" width="105.0" x="390.0" y="134.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="closeGenerationProcessInstance" id="BPMNShape_closeGenerationProcessInstance">
+        <omgdc:Bounds height="80.0" width="125.0" x="850.0" y="138.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="892.0" y="310.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteInstanceProcess" id="BPMNShape_deleteInstanceProcess">
+        <omgdc:Bounds height="65.0" width="131.0" x="847.0" y="440.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="495.0" y="177.0"></omgdi:waypoint>
+        <omgdi:waypoint x="600.0" y="177.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="975.0" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1137.0" y="178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1137.0" y="313.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="185.0" y="177.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="177.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="978.0" y="472.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1137.0" y="472.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1137.0" y="348.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="912.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="912.0" y="218.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="922.0" y="310.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="912.0" y="350.0"></omgdi:waypoint>
+        <omgdi:waypoint x="912.0" y="440.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="12.0" x="922.0" y="350.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="675.0" y="213.0"></omgdi:waypoint>
+        <omgdi:waypoint x="675.0" y="330.0"></omgdi:waypoint>
+        <omgdi:waypoint x="892.0" y="330.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,12 @@
+package org.services.layer.wits.services.rules
+dialect "mvel"
+import org.services.layer.wits.services.model.InfoOwnerObject;
+
+rule "CheckOwnerObject"
+    
+	when
+		ioo : InfoOwnerObject( !previousOwner.equalsIgnoreCase(nextOwner) )
+	then
+		ioo.setNotifyOwner( true );
+end
+

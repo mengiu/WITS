@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="process_SOL" name="Workflow di localizzazione oggetti WITS" isExecutable="true">
+    <startEvent id="starteventSOL" name="StartSOL">
+      <extensionElements>
+        <activiti:formProperty id="StartPageSOL" name="Reading Barcode " type="readingbarcodegrid"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <serviceTask id="servicetaskUpdateLocation" name="Aggiorna posizione oggetto" activiti:expression="#{updatePositionWamatObjectService.execute(execution)}"></serviceTask>
+    <serviceTask id="servicetaskCreateEventLocation" name="Creazione evento di movimentazione oggetto" activiti:expression="#{createLocationEventService.execute(execution)}"></serviceTask>
+    <endEvent id="endeventSOL" name="EndSOL"></endEvent>
+    <sequenceFlow id="flow1" sourceRef="starteventSOL" targetRef="servicetaskUpdateLocation"></sequenceFlow>
+    <sequenceFlow id="flow2" sourceRef="servicetaskUpdateLocation" targetRef="servicetaskCreateEventLocation"></sequenceFlow>
+    <sequenceFlow id="flow3" sourceRef="servicetaskCreateEventLocation" targetRef="endeventSOL"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_SOL">
+    <bpmndi:BPMNPlane bpmnElement="process_SOL" id="BPMNPlane_process_SOL">
+      <bpmndi:BPMNShape bpmnElement="starteventSOL" id="BPMNShape_starteventSOL">
+        <omgdc:Bounds height="35.0" width="35.0" x="60.0" y="40.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskUpdateLocation" id="BPMNShape_servicetaskUpdateLocation">
+        <omgdc:Bounds height="68.0" width="141.0" x="230.0" y="24.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskCreateEventLocation" id="BPMNShape_servicetaskCreateEventLocation">
+        <omgdc:Bounds height="81.0" width="131.0" x="235.0" y="240.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endeventSOL" id="BPMNShape_endeventSOL">
+        <omgdc:Bounds height="35.0" width="35.0" x="540.0" y="263.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="95.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="58.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="300.0" y="92.0"></omgdi:waypoint>
+        <omgdi:waypoint x="300.0" y="240.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="366.0" y="280.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="280.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

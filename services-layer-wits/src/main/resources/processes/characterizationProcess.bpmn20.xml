@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="process_CWMO" name="Workflow caratterizzazione" isExecutable="true">
+    <startEvent id="starteventCWMO" name="StartCWMO">
+      <extensionElements>
+        <activiti:formProperty id="startWorkflowCWMO" name="Start Page CWMO" type="startcharacterizationgrid"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <serviceTask id="closeWaMatObject" name="Chiusura Wamat Object" activiti:expression="#{closeWaMatObjectService.execute(execution)}"></serviceTask>
+    <userTask id="detailedScheduleWaMat" name="Scheda di collo WaMat">
+      <extensionElements>
+        <activiti:formProperty id="scheduleDetailsId" name="Scheda di collo" type="scheduledetailsgrid"></activiti:formProperty>
+        <activiti:taskListener event="create" expression="#{scheduleDetailsUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="characterizationPage" name="Caratterizzazione Wamat">
+      <extensionElements>
+        <activiti:formProperty id="characterizationgridId" name="Caratterizzazione WaMat" type="characterizationgrid"></activiti:formProperty>
+        <activiti:taskListener event="create" expression="#{characterizationUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="closeDetailedScheduleWaMat" name="Chiusura task scheda di collo" activiti:expression="#{closeDetailedScheduleWaMatService.execute(execution)}"></serviceTask>
+    <serviceTask id="closeCharacterizationPage" name="Chiusura Caratterizzazione" activiti:expression="#{closeCharacterizationService.execute(execution)}"></serviceTask>
+    <userTask id="approbationPage" name="Approvazione Wamat">
+      <extensionElements>
+        <activiti:formProperty id="approbationgridId" name="Approvazione Wamat" type="approbationgrid"></activiti:formProperty>
+        <activiti:taskListener event="create" expression="#{approbationUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegatewayCharacterization" name="Exclusive Gateway Characterization"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegatewayApprobation" name="Exclusive Gateway Approbation"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegatewayCloseProcess" name="Exclusive Gateway Close Process"></exclusiveGateway>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow1" sourceRef="starteventCWMO" targetRef="closeWaMatObject"></sequenceFlow>
+    <sequenceFlow id="flow2" sourceRef="closeWaMatObject" targetRef="detailedScheduleWaMat"></sequenceFlow>
+    <sequenceFlow id="flow3" sourceRef="detailedScheduleWaMat" targetRef="closeDetailedScheduleWaMat"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="closeDetailedScheduleWaMat" targetRef="characterizationPage"></sequenceFlow>
+    <sequenceFlow id="flow7" name="No" sourceRef="exclusivegatewayCharacterization" targetRef="detailedScheduleWaMat">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeCharacterizationClosing == 'NO_CLOSING_CHARACTERIZATION'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" name="Si" sourceRef="exclusivegatewayCharacterization" targetRef="closeCharacterizationPage">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeCharacterizationClosing == 'YES_CLOSING_CHARACTERIZATION'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow9" sourceRef="closeCharacterizationPage" targetRef="approbationPage"></sequenceFlow>
+    <sequenceFlow id="flow12" name="Si" sourceRef="exclusivegatewayApprobation" targetRef="closeApprobationPage">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeApprobationClosing == 'CLOSING_WITH_APPROBATION'}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="closeApprobationPage" name="Chiusura con approvazione" activiti:expression="#{closeWithApprobationService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow17" sourceRef="closeApprobationPage" targetRef="endevent1"></sequenceFlow>
+    <serviceTask id="closeWithoutApprobationPage" name="Chiusura senza approvazione" activiti:expression="#{closeWithoutApprobationService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow18" name="Si" sourceRef="exclusivegatewayCloseProcess" targetRef="closeWithoutApprobationPage">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeWorkflowCWMOClosing == 'YES_CLOSING_WORKFLOW_WMO'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="closeWithoutApprobationPage" targetRef="endevent1"></sequenceFlow>
+    <serviceTask id="restartCharacterization" name="Riavvia Caratterizzazione" activiti:expression="#{restartCharacterizationService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow20" sourceRef="restartCharacterization" targetRef="characterizationPage"></sequenceFlow>
+    <sequenceFlow id="flow21" name="No" sourceRef="exclusivegatewayCloseProcess" targetRef="restartCharacterization">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeWorkflowCWMOClosing == 'NO_CLOSING_WORKFLOW_WMO'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow22" sourceRef="characterizationPage" targetRef="exclusivegatewayCharacterization"></sequenceFlow>
+    <sequenceFlow id="flow23" sourceRef="approbationPage" targetRef="exclusivegatewayApprobation"></sequenceFlow>
+    <sequenceFlow id="flow24" name="No" sourceRef="exclusivegatewayApprobation" targetRef="exclusivegatewayCloseProcess">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${typeApprobationClosing == 'CLOSING_WITHOUT_APPROBATION'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_CWMO">
+    <bpmndi:BPMNPlane bpmnElement="process_CWMO" id="BPMNPlane_process_CWMO">
+      <bpmndi:BPMNShape bpmnElement="starteventCWMO" id="BPMNShape_starteventCWMO">
+        <omgdc:Bounds height="35.0" width="35.0" x="68.0" y="214.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="closeWaMatObject" id="BPMNShape_closeWaMatObject">
+        <omgdc:Bounds height="58.0" width="111.0" x="30.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="detailedScheduleWaMat" id="BPMNShape_detailedScheduleWaMat">
+        <omgdc:Bounds height="58.0" width="105.0" x="226.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="characterizationPage" id="BPMNShape_characterizationPage">
+        <omgdc:Bounds height="65.0" width="105.0" x="600.0" y="56.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="closeDetailedScheduleWaMat" id="BPMNShape_closeDetailedScheduleWaMat">
+        <omgdc:Bounds height="61.0" width="105.0" x="416.0" y="58.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="closeCharacterizationPage" id="BPMNShape_closeCharacterizationPage">
+        <omgdc:Bounds height="73.0" width="111.0" x="223.0" y="371.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approbationPage" id="BPMNShape_approbationPage">
+        <omgdc:Bounds height="70.0" width="105.0" x="470.0" y="373.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegatewayCharacterization" id="BPMNShape_exclusivegatewayCharacterization">
+        <omgdc:Bounds height="40.0" width="40.0" x="258.0" y="213.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegatewayApprobation" id="BPMNShape_exclusivegatewayApprobation">
+        <omgdc:Bounds height="40.0" width="40.0" x="910.0" y="388.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegatewayCloseProcess" id="BPMNShape_exclusivegatewayCloseProcess">
+        <omgdc:Bounds height="40.0" width="40.0" x="910.0" y="68.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1040.0" y="373.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="closeApprobationPage" id="BPMNShape_closeApprobationPage">
+        <omgdc:Bounds height="71.0" width="105.0" x="878.0" y="470.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="closeWithoutApprobationPage" id="BPMNShape_closeWithoutApprobationPage">
+        <omgdc:Bounds height="74.0" width="105.0" x="1005.0" y="197.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="restartCharacterization" id="BPMNShape_restartCharacterization">
+        <omgdc:Bounds height="67.0" width="115.0" x="730.0" y="55.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="85.0" y="214.0"></omgdi:waypoint>
+        <omgdi:waypoint x="85.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="141.0" y="89.0"></omgdi:waypoint>
+        <omgdi:waypoint x="226.0" y="89.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="331.0" y="89.0"></omgdi:waypoint>
+        <omgdi:waypoint x="416.0" y="88.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="521.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="600.0" y="88.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="278.0" y="213.0"></omgdi:waypoint>
+        <omgdi:waypoint x="278.0" y="118.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="286.0" y="177.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="278.0" y="253.0"></omgdi:waypoint>
+        <omgdi:waypoint x="278.0" y="371.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="12.0" x="288.0" y="275.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="334.0" y="407.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="408.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="930.0" y="428.0"></omgdi:waypoint>
+        <omgdi:waypoint x="930.0" y="470.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="12.0" x="940.0" y="434.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="983.0" y="505.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1057.0" y="505.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1057.0" y="408.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="950.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1057.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1057.0" y="197.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="12.0" x="960.0" y="88.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="1057.0" y="271.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1057.0" y="373.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="730.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="705.0" y="88.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="910.0" y="88.0"></omgdi:waypoint>
+        <omgdi:waypoint x="845.0" y="88.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="874.0" y="68.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="652.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="652.0" y="233.0"></omgdi:waypoint>
+        <omgdi:waypoint x="298.0" y="233.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="575.0" y="408.0"></omgdi:waypoint>
+        <omgdi:waypoint x="910.0" y="408.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="930.0" y="388.0"></omgdi:waypoint>
+        <omgdi:waypoint x="930.0" y="108.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="100.0" x="940.0" y="357.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="process_RWMO" name="Workflow di richiesta wamat object" isExecutable="true">
+    <startEvent id="starteventRWMO" name="StartRWMO">
+      <extensionElements>
+        <activiti:formProperty id="startpageRWMO" name="Start Page RWMO" type="requestwamatgrid"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <endEvent id="endeventRWMO" name="EndRWMO"></endEvent>
+    <userTask id="usertaskRWMO" name="Conferma Ricezione">
+      <extensionElements>
+        <activiti:formProperty id="readbarcode" name="Read Barcode" type="movingobjectsgrid"></activiti:formProperty>
+        <activiti:taskListener event="create" expression="#{readBarcodeUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="servicetaskCreateCU" name="Crea Containing Unit" activiti:expression="#{createContainingUnitService.execute(execution)}"></serviceTask>
+    <serviceTask id="servicetaskCreateWMO" name="Crea Wamat Object" activiti:expression="#{createWamatObjectService.execute(execution)}"></serviceTask>
+    <userTask id="usertaskPrintWB" name="Stampa Wamat Barcode">
+      <extensionElements>
+        <activiti:formProperty id="printbarcode" name="Print Barcode" type="printbarcodegrid"></activiti:formProperty>
+        <activiti:taskListener event="create" expression="#{printBarcodeUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" sourceRef="usertaskRWMO" targetRef="endeventRWMO">
+      <extensionElements>
+        <activiti:executionListener event="end" expression="#{rWMOEndProcessEventService.endProcessEvent(execution)}"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="servicetaskCreateWMO" targetRef="usertaskPrintWB"></sequenceFlow>
+    <exclusiveGateway id="RequestTypeGateway" name="Tipo di Richiesta Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow8" name="Container richiesto o esistente" sourceRef="RequestTypeGateway" targetRef="servicetaskCreateCU">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.status == 'CREATE_CONTAINER'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow9" name="Container non richiesto" sourceRef="RequestTypeGateway" targetRef="servicetaskCreateWMO">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.status == 'NO_CONTAINER'}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="createTypeRequestContainer" name="Crea Variabile di processo 'Tipo richiesta container'" activiti:expression="#{createTypeRequestContainerService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow12" sourceRef="starteventRWMO" targetRef="createTypeRequestContainer"></sequenceFlow>
+    <exclusiveGateway id="overpackGateway" name="Overpack Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow16" name="No" sourceRef="overpackGateway" targetRef="servicetaskCreateWMO">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.typecontainer == 'NO_OVERPACK'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow17" name="Si" sourceRef="overpackGateway" targetRef="usertaskPrintWB">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.typecontainer == 'OVERPACK'}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetaskCancelWMO" name="Annulla Richiesta WaMat" activiti:expression="#{cancelWamatObjectService.execute(execution)}"></serviceTask>
+    <exclusiveGateway id="cancelledgateway" name="Cancelled Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow18" sourceRef="servicetaskCancelWMO" targetRef="endeventRWMO"></sequenceFlow>
+    <sequenceFlow id="flow20" name="Si" sourceRef="cancelledgateway" targetRef="servicetaskCancelWMO">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.typeRequestWaMat == 'CANCELLED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow21" name="No" sourceRef="cancelledgateway" targetRef="usertaskRWMO">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.typeRequestWaMat == 'NO_CANCELLED'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow24" sourceRef="createTypeRequestContainer" targetRef="RequestTypeGateway"></sequenceFlow>
+    <sequenceFlow id="flow25" sourceRef="servicetaskCreateCU" targetRef="overpackGateway"></sequenceFlow>
+    <sequenceFlow id="flow26" sourceRef="usertaskPrintWB" targetRef="cancelledgateway"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process_RWMO">
+    <bpmndi:BPMNPlane bpmnElement="process_RWMO" id="BPMNPlane_process_RWMO">
+      <bpmndi:BPMNShape bpmnElement="starteventRWMO" id="BPMNShape_starteventRWMO">
+        <omgdc:Bounds height="35.0" width="35.0" x="221.0" y="61.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endeventRWMO" id="BPMNShape_endeventRWMO">
+        <omgdc:Bounds height="35.0" width="35.0" x="357.0" y="474.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertaskRWMO" id="BPMNShape_usertaskRWMO">
+        <omgdc:Bounds height="63.0" width="150.0" x="442.0" y="460.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskCreateCU" id="BPMNShape_servicetaskCreateCU">
+        <omgdc:Bounds height="55.0" width="105.0" x="162.0" y="266.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskCreateWMO" id="BPMNShape_servicetaskCreateWMO">
+        <omgdc:Bounds height="55.0" width="105.0" x="820.0" y="219.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertaskPrintWB" id="BPMNShape_usertaskPrintWB">
+        <omgdc:Bounds height="55.0" width="105.0" x="820.0" y="333.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="RequestTypeGateway" id="BPMNShape_RequestTypeGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="592.0" y="161.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createTypeRequestContainer" id="BPMNShape_createTypeRequestContainer">
+        <omgdc:Bounds height="93.0" width="105.0" x="370.0" y="32.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="overpackGateway" id="BPMNShape_overpackGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="466.0" y="273.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskCancelWMO" id="BPMNShape_servicetaskCancelWMO">
+        <omgdc:Bounds height="61.0" width="121.0" x="178.0" y="461.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancelledgateway" id="BPMNShape_cancelledgateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="370.0" y="390.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="442.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="392.0" y="491.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="872.0" y="274.0"></omgdi:waypoint>
+        <omgdi:waypoint x="872.0" y="299.0"></omgdi:waypoint>
+        <omgdi:waypoint x="872.0" y="333.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="592.0" y="181.0"></omgdi:waypoint>
+        <omgdi:waypoint x="215.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="214.0" y="266.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="48.0" width="100.0" x="256.0" y="131.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="632.0" y="181.0"></omgdi:waypoint>
+        <omgdi:waypoint x="872.0" y="180.0"></omgdi:waypoint>
+        <omgdi:waypoint x="872.0" y="219.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="48.0" width="100.0" x="739.0" y="131.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="256.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="370.0" y="78.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="486.0" y="273.0"></omgdi:waypoint>
+        <omgdi:waypoint x="485.0" y="246.0"></omgdi:waypoint>
+        <omgdi:waypoint x="820.0" y="246.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="506.0" y="226.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="506.0" y="293.0"></omgdi:waypoint>
+        <omgdi:waypoint x="750.0" y="293.0"></omgdi:waypoint>
+        <omgdi:waypoint x="872.0" y="333.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="12.0" x="516.0" y="293.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="299.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="357.0" y="491.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="370.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="238.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="238.0" y="461.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="12.0" x="278.0" y="410.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="410.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="514.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="514.0" y="441.0"></omgdi:waypoint>
+        <omgdi:waypoint x="517.0" y="460.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="420.0" y="410.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="475.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="612.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="612.0" y="161.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="267.0" y="293.0"></omgdi:waypoint>
+        <omgdi:waypoint x="466.0" y="293.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="820.0" y="360.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="360.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="390.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

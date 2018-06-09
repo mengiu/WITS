@@ -1,0 +1,38 @@
+//created on: 07-Oct-2013
+package org.services.layer.wits.services.rules
+dialect "mvel"
+
+//list any import classes here.
+import org.services.layer.wits.services.model.StatusReturnAnswerRequestContainer;
+import org.services.layer.wits.services.model.RequestContainingUnit;
+
+//declare any global variables here
+
+
+rule "DummyRule"
+
+    when 
+        requestContainingUnit : RequestContainingUnit(isContainerRequested())
+    then
+      requestContainingUnit.setStatus(StatusReturnAnswerRequestContainer.CREATE_CONTAINER);
+
+end
+
+
+rule "ChecksTypeContainerRequestRule_1"
+
+    when 
+        requestContainingUnit : RequestContainingUnit(isContainerRequested())
+    then
+       requestContainingUnit.setStatus(StatusReturnAnswerRequestContainer.CREATE_CONTAINER);
+
+end
+
+rule "ChecksTypeContainerRequestRule_2"
+
+    when 
+        requestContainingUnit : RequestContainingUnit(!isContainerRequested())
+    then
+       requestContainingUnit.setStatus(StatusReturnAnswerRequestContainer.NO_CONTAINER);
+
+end
