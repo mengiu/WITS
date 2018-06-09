@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="primary" transaction-type="JTA">
+       <provider>org.hibernate.ejb.HibernatePersistence</provider>
+       <!-- <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider> -->
+       
+    <!--  <persistence-unit-metadata>
+        <persistence-unit-defaults>
+            <schema>WITS</schema>
+        </persistence-unit-defaults>
+    </persistence-unit-metadata>-->   
+       <jta-data-source>jdbc/datasources/WITSUSRWDS</jta-data-source>
+<class>org.persistence.layer.wits.form.ActGeBytearray</class>
+<class>org.persistence.layer.wits.form.BarcodeTypeSt</class>
+<class>org.persistence.layer.wits.form.AttachedDocument</class>
+<class>org.persistence.layer.wits.form.ContainingUnit</class>
+<class>org.persistence.layer.wits.form.ContainingUnitTypeSt</class>
+<class>org.persistence.layer.wits.form.DocumentTypeSt</class>
+<class>org.persistence.layer.wits.form.EventInstance</class>
+<class>org.persistence.layer.wits.form.EventTypeSt</class>
+<class>org.persistence.layer.wits.form.GenerationProcessInstance</class>
+<class>org.persistence.layer.wits.form.GenerationProcessSt</class>
+<class>org.persistence.layer.wits.form.GroupSt</class>
+<class>org.persistence.layer.wits.form.GroupTypeSt</class>
+<class>org.persistence.layer.wits.form.HomogeneousGroupSt</class>
+<class>org.persistence.layer.wits.form.HomogeneousLot</class>
+<class>org.persistence.layer.wits.form.Item</class>
+<class>org.persistence.layer.wits.form.MaterialGroupSt</class>
+<class>org.persistence.layer.wits.form.MaterialSt</class>
+<class>org.persistence.layer.wits.form.Wac2ExtFieldTypeSt</class>
+<class>org.persistence.layer.wits.form.OwnerSt</class>
+<class>org.persistence.layer.wits.form.QuantityUnitSt</class>
+<class>org.persistence.layer.wits.form.RoleSt</class>
+<class>org.persistence.layer.wits.form.StatusSt</class>
+<class>org.persistence.layer.wits.form.WacComplianceClaim</class>
+<class>org.persistence.layer.wits.form.WacSt</class>
+<class>org.persistence.layer.wits.form.WamatObject</class>
+<class>org.persistence.layer.wits.form.WasteManagementPlanSt</class>
+<class>org.persistence.layer.wits.form.Wmp2GenerationProcess</class>
+<class>org.persistence.layer.wits.form.Wmo2ActHiProcinst</class>
+<class>org.persistence.layer.wits.form.Wmo2ActHiProcinstId</class>
+<class>org.persistence.layer.wits.form.WitsUserSt</class>
+<class>org.persistence.layer.wits.form.WitsUser2RoleGroup</class>
+<class>org.persistence.layer.wits.form.WitsUser2RoleGroupId</class>
+<class>org.persistence.layer.wits.form.LoggingEventWorkflow</class>
+<class>org.persistence.layer.wits.form.ActIdUser</class>
+<class>org.persistence.layer.wits.form.AttachedDocument2Table</class>
+<class>org.persistence.layer.wits.form.AttachedDocument2TableId</class>
+<class>org.persistence.layer.wits.form.GraficFormatSt</class>
+<class>org.persistence.layer.wits.form.WamatExtendedFieldFormatSt</class>
+<class>org.persistence.layer.wits.form.WamatExtendedField</class>
+<class>org.persistence.layer.wits.form.WamatExtendedFieldTypeSt</class>
+<class>org.persistence.layer.wits.form.ViewMetadataColumnTable</class>
+
+        <properties>
+         <!-- Properties for Hibernate -->
+         <!-- Oracle dialect --> 
+         <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/> 
+         <!-- <property name="hibernate.hbm2ddl.auto" value="create-drop" /> -->
+         <!-- <property name="hibernate.hbm2ddl.auto" value="validate" /> -->
+         <property name="hibernate.show_sql" value="true" />
+        <property name="hibernate.transaction.jta.platform"
+                      value="org.hibernate.service.jta.platform.internal.WeblogicJtaPlatform" />
+         <!--<property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.WeblogicTransactionManagerLookup"/>-->
+         <!--<property name="hibernate.current_session_context_class" value="jta"/>
+         <property name="hibernate.transaction.factory_class" value="org.hibernate.transaction.JTATransactionFactory"/>-->
+         <!-- Default is false for backwards compatibility.  Should be used on all new projects -->
+         <property name="hibernate.id.new_generator_mappings" value="true"/>
+         <!--<property name="hibernate.query.factory_class" value="org.hibernate.hql.internal.classic.ClassicQueryTranslatorFactory"/>-->
+       </properties>
+    </persistence-unit>
+</persistence>
