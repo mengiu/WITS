@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+       
+  <!-- This Spring config file is NOT used in Alfresco, as the Activiti engine is wired in a different way there -->
+       
+<bean id="processEngineConfiguration"
+class="org.activiti.spring.SpringProcessEngineConfiguration">
+      <property name="transactionManager" ref="txManager"/>
+      <property name="transactionsExternallyManaged" value="true" />
+      <property name="databaseSchema" value="WITS" />
+      <property name="databaseTablePrefix" value="WITS." />
+      <property name="dataSourceJndiName" value="jdbc/datasources/WITSUSRWDS" /> 
+      <property name="databaseSchemaUpdate" value="none" />
+      <!-- <property name="dataSourceJndiName" value="jdbc/datasources/WITSDS" /> 
+      <property name="databaseSchemaUpdate" value="true" />-->
+      <property name="jpaEntityManagerFactory" ref="entityManagerFactory" />
+      <property name="jpaHandleTransaction" value="true" />
+      <property name="jpaCloseEntityManager" value="true" />
+      <property name="databaseType" value="oracle" />
+      <property name="jobExecutorActivate" value="false" />
+      <!-- <property name="deploymentResources" value="classpath*:/processes/*.bpmn20.xml,classpath*:/rules/*.drl"/> -->
+      <property name="deploymentResources">
+       <list>
+        <value>classpath*:/processes/*.bpmn20.xml</value>
+        <value>classpath*:/rules/*.drl</value>
+       </list>
+      </property> 
+      <property name="mailServerHost" value="localhost"/>
+      <property name="mailServerPort" value="5000"/>
+      <property name="mailServerDefaultFrom" value="menneagi@gmail.com"/>
+      <!--  <property name="mailServerUsername" value="menneagi"/>
+      <property name="mailServerPassword" value="mengiu64"/>-->
+      <property name="mailServerUseSSL" value="false"/>
+      <property name="customFormTypes">
+       <list>
+        <bean class="org.front.end.wits.vaadin.form.UserFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.TextAreaFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.DestinationFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.OwnerFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.WmpFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.GstFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.PrintBarcodeFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.MovingObjectsFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.rwmo.RequestWamatFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.sol.ReadBarcodeFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.pwmo.StartProcessingWmoFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.pwmo.ItemizingFormType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.cwmo.StartPageWorkflowCharacterizationType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.cwmo.ScheduleDetailsType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.cwmo.CharacterizationType"/>   
+        <bean class="org.front.end.wits.vaadin.form.processes.cwmo.ApprobationType"/>   
+       </list>
+      </property>
+      <property name="customPostDeployers">
+       <list>
+        <bean class="org.activiti.engine.impl.rules.RulesDeployer" /> 
+       </list>
+      </property>
+    </bean> 
+
+  <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+  </bean>
+   
+  <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+  <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+  <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+  <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+  <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+  <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+  
+  <bean id="activitiLoginHandler" class="org.front.end.wits.vaadin.ui.login.DefaultLoginHandler">
+    <property name="identityService" ref="identityService" />
+  </bean>
+  <bean id="resTypeCheckPositionRules" class="org.drools.io.ResourceFactory" factory-method="newClassPathResource">
+    <constructor-arg index="0" type="java.lang.String" value="classpath*:/rules/CheckPositionRules.drl" /> 
+   </bean>
+
+   <!-- <bean id="resTypeBean" class="org.drools.builder.ResourceType" factory-method="addResourceTypeToRegistry">
+    <constructor-arg index="0" type="java.lang.String" value="DRL" /> 
+    <constructor-arg index="1" type="java.lang.String" value="Drools Rule Language" /> 
+    <constructor-arg index="2" type="java.lang.String" value="drl" /> 
+    <constructor-arg index="3" type="java.lang.String" value="drl" /> 
+   </bean> -->
+
+  
+</beans>
