@@ -13,3 +13,4 @@ Waste Management System.
 •	XA Datasource external managed
 •	Java
 
+this web application manages the nuclear garbage lifecycle using business process management system.
