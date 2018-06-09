@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:tx="http://www.springframework.org/schema/tx"
+   xmlns:jee="http://www.springframework.org/schema/jee"
+   xmlns:cdi="http://www.jboss.org/schema/seam/spring"
+   xsi:schemaLocation="
+   http://www.springframework.org/schema/beans 
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/tx      
+   http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+   http://www.springframework.org/schema/context 
+   http://www.springframework.org/schema/context/spring-context-2.5.xsd
+   http://www.springframework.org/schema/jee
+   http://www.springframework.org/schema/jee/spring-jee.xsd
+   http://www.jboss.org/schema/seam/spring 
+   http://www.jboss.org/schema/seam/spring/seam-spring.xsd">
+
+     
+    <!-- <bean id="applicationContextFactory" class="org.ispra.services.layer.services.conf.ApplicationContextFactory" /> -->
+    
+     <bean id="processEngineConfiguration"
+          class="org.activiti.spring.SpringProcessEngineConfiguration">
+      <property name="transactionManager" ref="txManager"/>
+      <property name="transactionsExternallyManaged" value="true" />
+      <property name="dataSource" ref="dataSource" />
+      <property name="databaseSchema" value="WITS" />
+      <property name="databaseTablePrefix" value="WITS." />
+       <property name="databaseSchemaUpdate" value="none" />
+      <!-- <property name="dataSource" value="dataSourceWITS" /> 
+      <property name="databaseSchemaUpdate" value="true" />-->
+      <property name="jpaEntityManagerFactory" ref="entityManagerFactory" />
+      <property name="jpaHandleTransaction" value="true" />
+      <property name="jpaCloseEntityManager" value="true" />
+      <property name="databaseType" value="oracle" />
+       <property name="jobExecutorActivate" value="false" />
+      <property name="customPostDeployers">
+       <list>
+        <bean class="org.activiti.engine.impl.rules.RulesDeployer" /> 
+       </list>
+      </property>
+     </bean> 
+
+  <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+  </bean>
+   
+  <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+  <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+  <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+  <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+  <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+  <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+  
+  <bean id="resTypeCheckPositionRules" class="org.drools.io.ResourceFactory" factory-method="newClassPathResource">
+    <constructor-arg index="0" type="java.lang.String" value="classpath*:/rules/CheckPositionRules.drl" /> 
+   </bean>
+	
+  
+</beans>
