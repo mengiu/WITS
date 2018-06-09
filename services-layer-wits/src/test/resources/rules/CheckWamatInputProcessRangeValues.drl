@@ -1,0 +1,26 @@
+//created on: 25-Nov-2013
+package org.services.layer.wits.services.rules
+
+import org.services.layer.wits.services.model.SecondLevelControlStartPWMO;
+import org.services.layer.wits.services.model.StatusReturnAnswer;
+import org.services.layer.wits.services.drools.DroolsConstants;
+//list any import classes here.
+dialect "mvel"
+
+
+
+//declare any global variables here
+
+
+
+
+rule "RangeWamatInputProcessControl"
+
+    when
+        slcs: SecondLevelControlStartPWMO(!(isRangeObjectForProcessInstanceCorrect()))
+    then
+		slcs.setStatusReturnAnswer( StatusReturnAnswer.ERROR );
+        slcs.setMessageErrorRet(DroolsConstants.PWMO_RANGE_WAMAT_INPUT_PROCESS);
+
+end
+

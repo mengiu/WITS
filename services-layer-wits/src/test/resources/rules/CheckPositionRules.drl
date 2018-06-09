@@ -1,0 +1,51 @@
+package org.services.layer.wits.services.rules
+dialect "mvel"
+import org.services.layer.wits.services.model.SecondLevelControlPosition;
+import org.services.layer.wits.services.model.StatusReturnAnswer;
+import org.services.layer.wits.services.drools.DroolsConstants;
+import org.persistence.layer.wits.enumusertypes.WamatObjectStatusType;
+
+rule "PositionEvaluationRule_1"
+    
+	when
+		la: SecondLevelControlPosition(!(
+		containingUnitDest.getMaxXPosition().intValue()>=objectCoordinate.getCoordinateXYZ().get("X").intValue()
+		&& containingUnitDest.getMaxYPosition().intValue()>=objectCoordinate.getCoordinateXYZ().get("Y").intValue()
+		&& containingUnitDest.getMaxZPosition().intValue()>=objectCoordinate.getCoordinateXYZ().get("Z").intValue()
+		))
+	then
+		la.setStatusReturnAnswer( StatusReturnAnswer.ERROR );
+        la.setMessageErrorRet(DroolsConstants.RWMO_COORDINATE_OUT_OF_BOUND);
+end
+
+rule "PositionEvaluationRule_2"
+    
+	when
+		la: SecondLevelControlPosition( getStatusReturnAnswer().equals(StatusReturnAnswer.OK) &&
+		(!duplicateAdmitted() && isDuplicateCoordinate()))
+	then
+		la.setStatusReturnAnswer( StatusReturnAnswer.ERROR );
+        la.setMessageErrorRet(DroolsConstants.RWMO_COORDINATE_DUPLICATE);
+end
+
+rule "PositionEvaluationRule_3"
+    
+	when
+		la: SecondLevelControlPosition( getStatusReturnAnswer().equals(StatusReturnAnswer.OK) &&
+		!(getWamatObjectMovedType().equals(WamatObjectStatusType.EMPTY) ||
+		  getWamatObjectMovedType().equals(WamatObjectStatusType.APPROVED)
+		  ))
+	then
+		la.setStatusReturnAnswer( StatusReturnAnswer.ERROR );
+        la.setMessageErrorRet(DroolsConstants.RWMO_INVALID_WAMAT_STATUS);
+end
+
+rule "PositionEvaluationRule_4"
+    
+	when
+		la: SecondLevelControlPosition( getStatusReturnAnswer().equals(StatusReturnAnswer.OK) &&
+		!isInListBarcodePrinted())
+	then
+		la.setStatusReturnAnswer( StatusReturnAnswer.ERROR );
+        la.setMessageErrorRet(DroolsConstants.RWMO_BARCODE_IS_NOT_IN_LIST_BARCODE);
+end

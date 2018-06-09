@@ -1,0 +1,35 @@
+//created on: 25-Nov-2013
+package org.services.layer.wits.services.rules
+
+//list any import classes here.
+import org.services.layer.wits.services.model.SecondLevelControlStartPWMO;
+import org.services.layer.wits.services.model.StatusReturnAnswer;
+import org.services.layer.wits.services.drools.DroolsConstants;
+
+dialect "mvel"
+
+
+//declare any global variables here
+
+
+
+
+rule "FindNumberInstacesProcessPWMO_1"
+
+    when
+        slcs: SecondLevelControlStartPWMO(generationProcessSt.getMinWamatPerInstance()==1 &&
+				                                 generationProcessSt.getMaxWamatPerInstance()==1)
+    then
+		slcs.setOneInstanceForEachWamat(true);
+
+end
+
+rule "FindNumberInstacesProcessPWMO_2"
+
+    when
+        slcs : SecondLevelControlStartPWMO(!(generationProcessSt.getMinWamatPerInstance()==1 &&
+				                                 generationProcessSt.getMaxWamatPerInstance()==1))
+    then
+		slcs.setOneInstanceForEachWamat(false);
+
+end

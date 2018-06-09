@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="processRWMO" name="Processo di richiesta wamat object" isExecutable="true">
+    <startEvent id="starteventRWMO" name="StartRWMO"></startEvent>
+    <endEvent id="endeventRWMO" name="EndRWMO"></endEvent>
+    <userTask id="usertaskRWMO" name="Conferma Ricezione Containing Unit">
+      <extensionElements>
+        <activiti:taskListener event="create" expression="#{readBarcodeUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="servicetaskCreateCU" name="Crea Containing Unit" activiti:expression="#{createContainingUnitService.execute(execution)}"></serviceTask>
+    <serviceTask id="servicetaskCreateWMO" name="Crea Wamat Object" activiti:expression="#{createWamatObjectService.execute(execution)}"></serviceTask>
+    <userTask id="usertaskPrintWB" name="Stampa Wamat Barcode">
+      <extensionElements>
+        <activiti:taskListener event="create" expression="#{printBarcodeUserTaskService.dynamicAssignment(task,execution)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" sourceRef="usertaskRWMO" targetRef="endeventRWMO"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="servicetaskCreateCU" targetRef="servicetaskCreateWMO"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="usertaskPrintWB" targetRef="usertaskRWMO"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="servicetaskCreateWMO" targetRef="usertaskPrintWB"></sequenceFlow>
+    <exclusiveGateway id="RequestTypeGateway" name="Tipo di Richiesta Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow8" name="Container richiesto o esistente" sourceRef="RequestTypeGateway" targetRef="servicetaskCreateCU">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.status == 'CREATE_CONTAINER'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow9" name="Container non richiesto" sourceRef="RequestTypeGateway" targetRef="servicetaskCreateWMO">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${requestContainingUnit.status == 'NO_CONTAINER'}]]></conditionExpression>
+    </sequenceFlow>
+    <businessRuleTask id="evaluateRequestType" name="Valutare Tipo richiesta" activiti:ruleVariablesInput="${requestContainingUnit}" activiti:rules="ChecksTypeContainerRequestRule"></businessRuleTask>
+    <sequenceFlow id="flow11" sourceRef="evaluateRequestType" targetRef="RequestTypeGateway"></sequenceFlow>
+    <serviceTask id="createTypeRequestContainer" name="Create Type Request Container Process Variable" activiti:expression="#{createTypeRequestContainerService.execute(execution)}"></serviceTask>
+    <sequenceFlow id="flow12" sourceRef="starteventRWMO" targetRef="createTypeRequestContainer"></sequenceFlow>
+    <sequenceFlow id="flow13" sourceRef="createTypeRequestContainer" targetRef="evaluateRequestType"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_processRWMO">
+    <bpmndi:BPMNPlane bpmnElement="processRWMO" id="BPMNPlane_processRWMO">
+      <bpmndi:BPMNShape bpmnElement="starteventRWMO" id="BPMNShape_starteventRWMO">
+        <omgdc:Bounds height="35.0" width="35.0" x="221.0" y="61.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endeventRWMO" id="BPMNShape_endeventRWMO">
+        <omgdc:Bounds height="35.0" width="35.0" x="728.0" y="436.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertaskRWMO" id="BPMNShape_usertaskRWMO">
+        <omgdc:Bounds height="91.0" width="150.0" x="385.0" y="408.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskCreateCU" id="BPMNShape_servicetaskCreateCU">
+        <omgdc:Bounds height="55.0" width="105.0" x="407.0" y="227.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetaskCreateWMO" id="BPMNShape_servicetaskCreateWMO">
+        <omgdc:Bounds height="55.0" width="105.0" x="695.0" y="227.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertaskPrintWB" id="BPMNShape_usertaskPrintWB">
+        <omgdc:Bounds height="55.0" width="105.0" x="695.0" y="319.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="RequestTypeGateway" id="BPMNShape_RequestTypeGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="592.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="evaluateRequestType" id="BPMNShape_evaluateRequestType">
+        <omgdc:Bounds height="55.0" width="105.0" x="560.0" y="51.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createTypeRequestContainer" id="BPMNShape_createTypeRequestContainer">
+        <omgdc:Bounds height="93.0" width="105.0" x="370.0" y="32.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="535.0" y="453.0"></omgdi:waypoint>
+        <omgdi:waypoint x="728.0" y="453.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="512.0" y="254.0"></omgdi:waypoint>
+        <omgdi:waypoint x="695.0" y="254.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="695.0" y="346.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="346.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="408.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="747.0" y="282.0"></omgdi:waypoint>
+        <omgdi:waypoint x="747.0" y="319.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="592.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="459.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="459.0" y="227.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="48.0" width="100.0" x="-124.0" y="1.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="632.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="747.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="747.0" y="227.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="48.0" width="100.0" x="41.0" y="-27.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="612.0" y="106.0"></omgdi:waypoint>
+        <omgdi:waypoint x="612.0" y="150.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="256.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="370.0" y="78.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="475.0" y="78.0"></omgdi:waypoint>
+        <omgdi:waypoint x="560.0" y="78.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

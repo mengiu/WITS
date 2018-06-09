@@ -1,0 +1,26 @@
+//created on: 07-Oct-2013
+package org.services.layer.wits.services.rules
+dialect "mvel"
+
+//list any import classes here.
+import org.services.layer.wits.services.model.StatusReturnAnswerRequestContainer;
+import org.services.layer.wits.services.model.RequestContainingUnit;
+
+//declare any global variables here
+
+
+
+
+rule "ChecksTypeContainerRequestRule_1"
+
+    when 
+        requestContainingUnit : RequestContainingUnit(isContainerRequested())
+    then
+    if  (true)
+     System.out.println("Greater than zero!");
+    else
+        requestContainingUnit.setStatus(StatusReturnAnswerRequestContainer.NO_CONTAINER);
+     
+end
+
+

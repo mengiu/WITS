@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+   <parent>
+        <artifactId>contenitore_wits</artifactId>
+        <groupId>org.ispra.wits</groupId>
+        <version>RELEASE-1.0.0</version>
+        <relativePath>../</relativePath>
+    </parent>
+  <artifactId>web-app-ispra-wits</artifactId>
+  <packaging>war</packaging>
+  <name>Wits Web Application</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <wits.artifact>
+      org.wits.webapp
+    </wits.artifact>
+    <webapp.branch>${scmBranch}</webapp.branch>    
+    <webapp.revision>${buildRevision}</webapp.revision>
+  </properties>
+
+  <dependencies>
+    <dependency>
+     <groupId>org.ispra.wits</groupId>
+     <artifactId>front-end-wits</artifactId>
+     <version>RELEASE-1.0.0</version>
+    </dependency>
+  </dependencies>
+  <url>https://webgate.ec.europa.eu/CITnet/confluence/display/wits/Home</url>
+  <scm> 
+   <connection>scm:svn:https://webgate.ec.europa.eu/CITnet/svn/WITS2/WITS/trunk/contenitore_wits</connection> 
+   <developerConnection>scm:svn:https://webgate.ec.europa.eu/CITnet/svn/WITS2/WITS/trunk/contenitore_wits</developerConnection> 
+   <tag>HEAD</tag>
+   <url>http://appstest.jrc.cec.eu.int/web-app-ispra-wits/</url> 
+  </scm> 
+  <issueManagement> 
+   <system>Jira</system> 
+   <url>https://webgate.ec.europa.eu/CITnet/jira/browse/WITS2</url> 
+  </issueManagement> 
+  <organization> 
+   <name>European Commission</name> 
+   <url>http://www.cc.cec</url> 
+  </organization> 
+  <licenses/>
+  <!-- <scm>
+        <connection>scm:svn:http://127.0.0.1/dummy</connection>
+        <developerConnection>scm:svn:https://127.0.0.1/dummy</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://127.0.0.1/dummy</url>
+  </scm> -->
+  <build>
+    <!-- <finalName>WITS-${project.version}-${webapp.branch}-r${webapp.revision}</finalName> -->
+    <finalName>WITS-${project.version}</finalName>
+   <plugins>
+           <!-- <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>buildnumber-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+                <execution>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>create</goal>
+                    </goals>
+                    <configuration>
+                     <doCheck>false</doCheck>
+                     <doUpdate>true</doUpdate>
+                     <providerImplementations>
+                      <svn>javasvn</svn>
+                     </providerImplementations>
+                     <useLastCommittedRevision>false</useLastCommittedRevision>
+                     <buildNumberPropertyName>buildRevision</buildNumberPropertyName>
+                    </configuration>
+                </execution>-->
+                 <!-- <execution>
+                 <id>generate-sequential</id>
+                 <phase>prepare-package</phase>
+                 <goals>
+                  <goal>create</goal>
+                 </goals>
+                 <configuration>
+                  <buildNumberPropertiesFileLocation>src/main/resources/buildNumber.properties</buildNumberPropertiesFileLocation>
+                  <format>{0,number,1'.'00}</format>
+                  <items>
+                   <item>buildNumber0</item>
+                  </items>
+                  <buildNumberPropertyName>buildSequential</buildNumberPropertyName>
+                </configuration>
+               </execution>--> 
+              <!-- </executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.google.code.maven-scm-provider-svnjava</groupId>
+						<artifactId>maven-scm-provider-svnjava</artifactId>
+						<version>2.0.6</version>
+					</dependency>
+					<dependency>
+						<groupId>org.tmatesoft.svnkit</groupId>
+						<artifactId>svnkit</artifactId>
+						<version>1.7.4-v1</version>
+					</dependency>
+				</dependencies>  
+        </plugin>--> 
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>2.1.1</version>
+    <configuration>
+     <webResources>
+                    <resource>
+                      <!-- <directory>${basedir}/src/main/webapp</directory> -->
+                      <directory>${basedir}/src/main</directory>
+                      <filtering>true</filtering>
+                      <includes>
+                        <include>**/weblogic.xml</include>
+                        <include>**/web.xml</include>
+                     </includes>
+                    </resource>
+                   <resource>
+                    	<directory>${basedir}/../front-end-wits/target/front-end-wits-${project.version}/VAADIN/widgetsets</directory>
+		                    <includes>
+		                        <include>**/*.*</include>
+		                    </includes>
+                    		<targetPath>/VAADIN/widgetsets</targetPath>
+                    </resource>
+     </webResources>
+   <archive>
+    <manifest>
+     <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+    </manifest>
+    <manifestEntries>
+      <Implementation-Version>${project.version}</Implementation-Version>
+      <Implementation-Build>${buildRevision}</Implementation-Build>
+    </manifestEntries>
+   </archive>
+  </configuration>
+ </plugin>
+   </plugins>
+  </build>  
+</project>
