@@ -19,7 +19,7 @@
 	<org.logback.version>1.0.9</org.logback.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<org.jbpm.version>5.3.0.Final</org.jbpm.version>
-	<drools-version>5.5.0.Final</drools-version>
+	<drools-version>7.60.0.Final</drools-version>
     <!-- Spring Third Party dependencies -->
     <version.aopalliance>1.0</version.aopalliance>
     <fox.version>1.18.4.CR</fox.version>
